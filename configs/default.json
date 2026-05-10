@@ -1,0 +1,86 @@
+{
+  "data": {
+    "train_path": "/kaggle/input/multi-lingual-sentiment-analysis/train.csv",
+    "test_path": "/kaggle/input/multi-lingual-sentiment-analysis/test.csv",
+    "text_column": "sentence",
+    "language_column": "language",
+    "label_column": "label",
+    "id_column": "ID",
+    "validation_size": 0.1,
+    "stratify_by_language": true,
+    "max_length": 512,
+    "random_state": 42,
+    "pad_to_multiple_of": 8
+  },
+  "model": {
+    "model_name_or_path": "/kaggle/input/llama-3.1/transformers/8b-instruct/2",
+    "local_files_only": true,
+    "trust_remote_code": true,
+    "num_labels": 2,
+    "load_in_4bit": true,
+    "bnb_4bit_quant_type": "nf4",
+    "bnb_4bit_use_double_quant": true,
+    "bnb_4bit_compute_dtype": "auto",
+    "device_map": "auto",
+    "use_cache": false,
+    "gradient_checkpointing": true
+  },
+  "lora": {
+    "enabled": true,
+    "r": 128,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "bias": "none",
+    "use_rslora": true,
+    "task_type": "SEQ_CLS",
+    "modules_to_save": [
+      "score"
+    ]
+  },
+  "training": {
+    "output_dir": "./artifacts/qlora_finetuned",
+    "metrics_dir": "./artifacts/metrics",
+    "num_train_epochs": 3,
+    "per_device_train_batch_size": 4,
+    "per_device_eval_batch_size": 4,
+    "gradient_accumulation_steps": 8,
+    "learning_rate": 0.00002,
+    "warmup_ratio": 0.03,
+    "max_grad_norm": 0.3,
+    "optim": "paged_adamw_32bit",
+    "weight_decay": 0.01,
+    "lr_scheduler_type": "cosine",
+    "logging_steps": 10,
+    "eval_strategy": "epoch",
+    "save_strategy": "epoch",
+    "save_total_limit": 2,
+    "load_best_model_at_end": true,
+    "metric_for_best_model": "f1_weighted",
+    "greater_is_better": true,
+    "early_stopping_patience": 3,
+    "dataloader_num_workers": 2,
+    "dataloader_persistent_workers": true,
+    "dataloader_prefetch_factor": 2,
+    "report_to": "none",
+    "seed": 42,
+    "data_seed": 42,
+    "resume_from_checkpoint": true,
+    "eval_on_start": false,
+    "save_safetensors": true
+  },
+  "prediction": {
+    "adapter_path": "./artifacts/qlora_finetuned",
+    "submission_path": "./artifacts/submission.csv",
+    "batch_size": 4,
+    "sort_by_id": true
+  }
+}

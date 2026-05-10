@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multilingual-sentiment-analysis"
+version = "0.1.0"
+description = "Modernized QLoRA pipeline for multilingual binary sentiment classification."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "accelerate>=0.33",
+  "bitsandbytes>=0.43",
+  "datasets>=2.20",
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "peft>=0.12",
+  "scikit-learn>=1.4",
+  "torch>=2.3",
+  "transformers>=4.44"
+]
+
+[project.scripts]
+msa-train = "multilingual_sentiment.train:main"
+msa-predict = "multilingual_sentiment.predict:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 99
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

@@ -2,7 +2,7 @@
 
 This project fine-tunes a Llama 3.1 8B instruction model for binary multilingual sentiment classification using QLoRA. It started as a Kaggle notebook solution and has been modernized into a small, source-only Python project that can be cloned, installed, and run when needed.
 
-The repository is intentionally lightweight. It keeps source code and documentation in GitHub, while excluding datasets, model weights, checkpoints, cache files, and generated submissions.
+The repository is intentionally lightweight. It keeps source code, setup instructions, and the original notebook reference in GitHub, while excluding datasets, model weights, checkpoints, cache files, and generated submissions.
 
 ## What This Project Does
 
@@ -45,8 +45,6 @@ src/multilingual_sentiment/modeling.py       Tokenizer, model, quantization, LoR
 src/multilingual_sentiment/metrics.py        Scalar metrics and detailed reports
 src/multilingual_sentiment/train.py          Training entry point
 src/multilingual_sentiment/predict.py        Prediction and submission entry point
-docs/INTERVIEW_GUIDE.md                      End-to-end interview explanation
-docs/MODERNIZATION_AUDIT.md                  Issues, risks, and modernization backlog
 Version 1.ipynb                              Original Kaggle notebook reference
 ```
 
@@ -60,6 +58,7 @@ These are excluded to keep the GitHub repo small:
 - `artifacts/`
 - `__pycache__/`
 - `.ipynb_checkpoints/`
+- `docs/`
 - generated `submission.csv`
 
 Download or attach the dataset and base model only when you want to run the project.
@@ -172,11 +171,26 @@ The original notebook is preserved for reference, but the runnable source code a
 - Config-driven training and prediction
 - CLI entry points through `python -m multilingual_sentiment.train` and `python -m multilingual_sentiment.predict`
 
-## Interview Explanation
+## End-to-End Explanation
 
-Use [docs/INTERVIEW_GUIDE.md](docs/INTERVIEW_GUIDE.md) for a polished end-to-end explanation of the project.
+This project is a supervised binary sentiment classifier for multilingual text. Each training example includes a sentence, a language value, and a sentiment label. The pipeline converts each row into a compact prompt:
 
-Use [docs/MODERNIZATION_AUDIT.md](docs/MODERNIZATION_AUDIT.md) to explain the original issues, modernization choices, performance risks, and future improvements.
+```text
+Classify the sentiment of the following text in {language}:
+"{sentence}"
+```
+
+The model is loaded with `AutoModelForSequenceClassification`, so it predicts class logits instead of generating free-form text. That makes evaluation and Kaggle submission generation straightforward.
+
+The modernized pipeline first validates the CSV schema, checks for nulls and unexpected labels, creates a held-out validation split, tokenizes examples in batches, trains with Hugging Face Trainer, saves validation metrics, and writes prediction outputs.
+
+The main modernization choices were:
+
+- Keep the original notebook as historical reference
+- Move reusable logic into `src/multilingual_sentiment/`
+- Use a real validation split instead of evaluating on sampled training rows
+- Return scalar metrics to Trainer and save detailed reports separately
+- Keep generated outputs out of GitHub
 
 ## Troubleshooting
 
